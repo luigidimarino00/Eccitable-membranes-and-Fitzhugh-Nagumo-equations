@@ -1,0 +1,919 @@
+\documentclass[11pt]{book}
+
+
+
+    \usepackage[breakable]{tcolorbox}
+    \usepackage{parskip} % Stop auto-indenting (to mimic markdown behaviour)
+    
+    \usepackage{iftex}
+    \ifPDFTeX
+    	\usepackage[T1]{fontenc}
+    	\usepackage{mathpazo}
+    \else
+    	\usepackage{fontspec}
+    \fi
+
+    % Basic figure setup, for now with no caption control since it's done
+    % automatically by Pandoc (which extracts ![](path) syntax from Markdown).
+    \usepackage{graphicx}
+    % Maintain compatibility with old templates. Remove in nbconvert 6.0
+    \let\Oldincludegraphics\includegraphics
+    % Ensure that by default, figures have no caption (until we provide a
+    % proper Figure object with a Caption API and a way to capture that
+    % in the conversion process - todo).
+    \usepackage{caption}
+    \DeclareCaptionFormat{nocaption}{}
+    \captionsetup{format=nocaption,aboveskip=0pt,belowskip=0pt}
+
+    \usepackage{float}
+    \floatplacement{figure}{H} % forces figures to be placed at the correct location
+    \usepackage{xcolor} % Allow colors to be defined
+    \usepackage{enumerate} % Needed for markdown enumerations to work
+    \usepackage{geometry} % Used to adjust the document margins
+    \usepackage{amsmath} % Equations
+    \usepackage{amssymb} % Equations
+    \usepackage{textcomp} % defines textquotesingle
+    % Hack from http://tex.stackexchange.com/a/47451/13684:
+    \AtBeginDocument{%
+        \def\PYZsq{\textquotesingle}% Upright quotes in Pygmentized code
+    }
+    \usepackage{upquote} % Upright quotes for verbatim code
+    \usepackage{eurosym} % defines \euro
+    \usepackage[mathletters]{ucs} % Extended unicode (utf-8) support
+    \usepackage{fancyvrb} % verbatim replacement that allows latex
+    \usepackage{grffile} % extends the file name processing of package graphics 
+                         % to support a larger range
+    \makeatletter % fix for old versions of grffile with XeLaTeX
+    \@ifpackagelater{grffile}{2019/11/01}
+    {
+      % Do nothing on new versions
+    }
+    {
+      \def\Gread@@xetex#1{%
+        \IfFileExists{"\Gin@base".bb}%
+        {\Gread@eps{\Gin@base.bb}}%
+        {\Gread@@xetex@aux#1}%
+      }
+    }
+    \makeatother
+    \usepackage[Export]{adjustbox} % Used to constrain images to a maximum size
+    \adjustboxset{max size={0.9\linewidth}{0.9\paperheight}}
+
+    % The hyperref package gives us a pdf with properly built
+    % internal navigation ('pdf bookmarks' for the table of contents,
+    % internal cross-reference links, web links for URLs, etc.)
+    \usepackage{hyperref}
+    % The default LaTeX title has an obnoxious amount of whitespace. By default,
+    % titling removes some of it. It also provides customization options.
+    \usepackage{titling}
+    \usepackage{longtable} % longtable support required by pandoc >1.10
+    \usepackage{booktabs}  % table support for pandoc > 1.12.2
+    \usepackage[inline]{enumitem} % IRkernel/repr support (it uses the enumerate* environment)
+    \usepackage[normalem]{ulem} % ulem is needed to support strikethroughs (\sout)
+                                % normalem makes italics be italics, not underlines
+    \usepackage{mathrsfs}
+    
+
+    
+    % Colors for the hyperref package
+    \definecolor{urlcolor}{rgb}{0,.145,.698}
+    \definecolor{linkcolor}{rgb}{.71,0.21,0.01}
+    \definecolor{citecolor}{rgb}{.12,.54,.11}
+
+    % ANSI colors
+    \definecolor{ansi-black}{HTML}{3E424D}
+    \definecolor{ansi-black-intense}{HTML}{282C36}
+    \definecolor{ansi-red}{HTML}{E75C58}
+    \definecolor{ansi-red-intense}{HTML}{B22B31}
+    \definecolor{ansi-green}{HTML}{00A250}
+    \definecolor{ansi-green-intense}{HTML}{007427}
+    \definecolor{ansi-yellow}{HTML}{DDB62B}
+    \definecolor{ansi-yellow-intense}{HTML}{B27D12}
+    \definecolor{ansi-blue}{HTML}{208FFB}
+    \definecolor{ansi-blue-intense}{HTML}{0065CA}
+    \definecolor{ansi-magenta}{HTML}{D160C4}
+    \definecolor{ansi-magenta-intense}{HTML}{A03196}
+    \definecolor{ansi-cyan}{HTML}{60C6C8}
+    \definecolor{ansi-cyan-intense}{HTML}{258F8F}
+    \definecolor{ansi-white}{HTML}{C5C1B4}
+    \definecolor{ansi-white-intense}{HTML}{A1A6B2}
+    \definecolor{ansi-default-inverse-fg}{HTML}{FFFFFF}
+    \definecolor{ansi-default-inverse-bg}{HTML}{000000}
+
+    % common color for the border for error outputs.
+    \definecolor{outerrorbackground}{HTML}{FFDFDF}
+
+    % commands and environments needed by pandoc snippets
+    % extracted from the output of `pandoc -s`
+    \providecommand{\tightlist}{%
+      \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+    \DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+    % Add ',fontsize=\small' for more characters per line
+    \newenvironment{Shaded}{}{}
+    \newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{{#1}}}
+    \newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{{#1}}}
+    \newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{{#1}}}}
+    \newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{{#1}}}
+    \newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{{#1}}}
+    \newcommand{\RegionMarkerTok}[1]{{#1}}
+    \newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{{#1}}}}
+    \newcommand{\NormalTok}[1]{{#1}}
+    
+    % Additional commands for more recent versions of Pandoc
+    \newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{{#1}}}
+    \newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{{#1}}}
+    \newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{{#1}}}
+    \newcommand{\ImportTok}[1]{{#1}}
+    \newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{{#1}}}}
+    \newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{{#1}}}
+    \newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{{#1}}}}
+    \newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{{#1}}}
+    \newcommand{\BuiltInTok}[1]{{#1}}
+    \newcommand{\ExtensionTok}[1]{{#1}}
+    \newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{{#1}}}
+    \newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{{#1}}}
+    \newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{{#1}}}}}
+    
+    
+    % Define a nice break command that doesn't care if a line doesn't already
+    % exist.
+    \def\br{\hspace*{\fill} \\* }
+    % Math Jax compatibility definitions
+    \def\gt{>}
+    \def\lt{<}
+    \let\Oldtex\TeX
+    \let\Oldlatex\LaTeX
+    \renewcommand{\TeX}{\textrm{\Oldtex}}
+    \renewcommand{\LaTeX}{\textrm{\Oldlatex}}
+    % Document parameters
+    % Document title
+    \title{Membrane eccitabili ed equazioni di
+Fitzhugh-Nagumo}
+    \author{Antonucci Daniele,Di Marino Luigi}
+    \date{25 Luglio 2022}
+    
+    
+    
+    
+% Pygments definitions
+\makeatletter
+\def\PY@reset{\let\PY@it=\relax \let\PY@bf=\relax%
+    \let\PY@ul=\relax \let\PY@tc=\relax%
+    \let\PY@bc=\relax \let\PY@ff=\relax}
+\def\PY@tok#1{\csname PY@tok@#1\endcsname}
+\def\PY@toks#1+{\ifx\relax#1\empty\else%
+    \PY@tok{#1}\expandafter\PY@toks\fi}
+\def\PY@do#1{\PY@bc{\PY@tc{\PY@ul{%
+    \PY@it{\PY@bf{\PY@ff{#1}}}}}}}
+\def\PY#1#2{\PY@reset\PY@toks#1+\relax+\PY@do{#2}}
+
+\@namedef{PY@tok@w}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.73,0.73}{##1}}}
+\@namedef{PY@tok@c}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cp}{\def\PY@tc##1{\textcolor[rgb]{0.74,0.48,0.00}{##1}}}
+\@namedef{PY@tok@k}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kp}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kt}{\def\PY@tc##1{\textcolor[rgb]{0.69,0.00,0.25}{##1}}}
+\@namedef{PY@tok@o}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@ow}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\@namedef{PY@tok@nb}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@nf}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@nc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@nn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@ne}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.82,0.25,0.23}{##1}}}
+\@namedef{PY@tok@nv}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@no}{\def\PY@tc##1{\textcolor[rgb]{0.53,0.00,0.00}{##1}}}
+\@namedef{PY@tok@nl}{\def\PY@tc##1{\textcolor[rgb]{0.63,0.63,0.00}{##1}}}
+\@namedef{PY@tok@ni}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.60,0.60,0.60}{##1}}}
+\@namedef{PY@tok@na}{\def\PY@tc##1{\textcolor[rgb]{0.49,0.56,0.16}{##1}}}
+\@namedef{PY@tok@nt}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@nd}{\def\PY@tc##1{\textcolor[rgb]{0.67,0.13,1.00}{##1}}}
+\@namedef{PY@tok@s}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sd}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@si}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\@namedef{PY@tok@se}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.13}{##1}}}
+\@namedef{PY@tok@sr}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.40,0.53}{##1}}}
+\@namedef{PY@tok@ss}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@sx}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@m}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@gh}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\@namedef{PY@tok@gu}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.50,0.00,0.50}{##1}}}
+\@namedef{PY@tok@gd}{\def\PY@tc##1{\textcolor[rgb]{0.63,0.00,0.00}{##1}}}
+\@namedef{PY@tok@gi}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.63,0.00}{##1}}}
+\@namedef{PY@tok@gr}{\def\PY@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
+\@namedef{PY@tok@ge}{\let\PY@it=\textit}
+\@namedef{PY@tok@gs}{\let\PY@bf=\textbf}
+\@namedef{PY@tok@gp}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,0.50}{##1}}}
+\@namedef{PY@tok@go}{\def\PY@tc##1{\textcolor[rgb]{0.53,0.53,0.53}{##1}}}
+\@namedef{PY@tok@gt}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.27,0.87}{##1}}}
+\@namedef{PY@tok@err}{\def\PY@bc##1{{\setlength{\fboxsep}{\string -\fboxrule}\fcolorbox[rgb]{1.00,0.00,0.00}{1,1,1}{\strut ##1}}}}
+\@namedef{PY@tok@kc}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kd}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kn}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@kr}{\let\PY@bf=\textbf\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@bp}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.50,0.00}{##1}}}
+\@namedef{PY@tok@fm}{\def\PY@tc##1{\textcolor[rgb]{0.00,0.00,1.00}{##1}}}
+\@namedef{PY@tok@vc}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vg}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vi}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@vm}{\def\PY@tc##1{\textcolor[rgb]{0.10,0.09,0.49}{##1}}}
+\@namedef{PY@tok@sa}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sb}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sc}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@dl}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@s2}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@sh}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@s1}{\def\PY@tc##1{\textcolor[rgb]{0.73,0.13,0.13}{##1}}}
+\@namedef{PY@tok@mb}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mf}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mh}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mi}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@il}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@mo}{\def\PY@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\@namedef{PY@tok@ch}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cm}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cpf}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@c1}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+\@namedef{PY@tok@cs}{\let\PY@it=\textit\def\PY@tc##1{\textcolor[rgb]{0.25,0.50,0.50}{##1}}}
+
+\def\PYZbs{\char`\\}
+\def\PYZus{\char`\_}
+\def\PYZob{\char`\{}
+\def\PYZcb{\char`\}}
+\def\PYZca{\char`\^}
+\def\PYZam{\char`\&}
+\def\PYZlt{\char`\<}
+\def\PYZgt{\char`\>}
+\def\PYZsh{\char`\#}
+\def\PYZpc{\char`\%}
+\def\PYZdl{\char`\$}
+\def\PYZhy{\char`\-}
+\def\PYZsq{\char`\'}
+\def\PYZdq{\char`\"}
+\def\PYZti{\char`\~}
+% for compatibility with earlier versions
+\def\PYZat{@}
+\def\PYZlb{[}
+\def\PYZrb{]}
+\makeatother
+
+
+    % For linebreaks inside Verbatim environment from package fancyvrb. 
+    \makeatletter
+        \newbox\Wrappedcontinuationbox 
+        \newbox\Wrappedvisiblespacebox 
+        \newcommand*\Wrappedvisiblespace {\textcolor{red}{\textvisiblespace}} 
+        \newcommand*\Wrappedcontinuationsymbol {\textcolor{red}{\llap{\tiny$\m@th\hookrightarrow$}}} 
+        \newcommand*\Wrappedcontinuationindent {3ex } 
+        \newcommand*\Wrappedafterbreak {\kern\Wrappedcontinuationindent\copy\Wrappedcontinuationbox} 
+        % Take advantage of the already applied Pygments mark-up to insert 
+        % potential linebreaks for TeX processing. 
+        %        {, <, #, %, $, ' and ": go to next line. 
+        %        _, }, ^, &, >, - and ~: stay at end of broken line. 
+        % Use of \textquotesingle for straight quote. 
+        \newcommand*\Wrappedbreaksatspecials {% 
+            \def\PYGZus{\discretionary{\char`\_}{\Wrappedafterbreak}{\char`\_}}% 
+            \def\PYGZob{\discretionary{}{\Wrappedafterbreak\char`\{}{\char`\{}}% 
+            \def\PYGZcb{\discretionary{\char`\}}{\Wrappedafterbreak}{\char`\}}}% 
+            \def\PYGZca{\discretionary{\char`\^}{\Wrappedafterbreak}{\char`\^}}% 
+            \def\PYGZam{\discretionary{\char`\&}{\Wrappedafterbreak}{\char`\&}}% 
+            \def\PYGZlt{\discretionary{}{\Wrappedafterbreak\char`\<}{\char`\<}}% 
+            \def\PYGZgt{\discretionary{\char`\>}{\Wrappedafterbreak}{\char`\>}}% 
+            \def\PYGZsh{\discretionary{}{\Wrappedafterbreak\char`\#}{\char`\#}}% 
+            \def\PYGZpc{\discretionary{}{\Wrappedafterbreak\char`\%}{\char`\%}}% 
+            \def\PYGZdl{\discretionary{}{\Wrappedafterbreak\char`\$}{\char`\$}}% 
+            \def\PYGZhy{\discretionary{\char`\-}{\Wrappedafterbreak}{\char`\-}}% 
+            \def\PYGZsq{\discretionary{}{\Wrappedafterbreak\textquotesingle}{\textquotesingle}}% 
+            \def\PYGZdq{\discretionary{}{\Wrappedafterbreak\char`\"}{\char`\"}}% 
+            \def\PYGZti{\discretionary{\char`\~}{\Wrappedafterbreak}{\char`\~}}% 
+        } 
+        % Some characters . , ; ? ! / are not pygmentized. 
+        % This macro makes them "active" and they will insert potential linebreaks 
+        \newcommand*\Wrappedbreaksatpunct {% 
+            \lccode`\~`\.\lowercase{\def~}{\discretionary{\hbox{\char`\.}}{\Wrappedafterbreak}{\hbox{\char`\.}}}% 
+            \lccode`\~`\,\lowercase{\def~}{\discretionary{\hbox{\char`\,}}{\Wrappedafterbreak}{\hbox{\char`\,}}}% 
+            \lccode`\~`\;\lowercase{\def~}{\discretionary{\hbox{\char`\;}}{\Wrappedafterbreak}{\hbox{\char`\;}}}% 
+            \lccode`\~`\:\lowercase{\def~}{\discretionary{\hbox{\char`\:}}{\Wrappedafterbreak}{\hbox{\char`\:}}}% 
+            \lccode`\~`\?\lowercase{\def~}{\discretionary{\hbox{\char`\?}}{\Wrappedafterbreak}{\hbox{\char`\?}}}% 
+            \lccode`\~`\!\lowercase{\def~}{\discretionary{\hbox{\char`\!}}{\Wrappedafterbreak}{\hbox{\char`\!}}}% 
+            \lccode`\~`\/\lowercase{\def~}{\discretionary{\hbox{\char`\/}}{\Wrappedafterbreak}{\hbox{\char`\/}}}% 
+            \catcode`\.\active
+            \catcode`\,\active 
+            \catcode`\;\active
+            \catcode`\:\active
+            \catcode`\?\active
+            \catcode`\!\active
+            \catcode`\/\active 
+            \lccode`\~`\~ 	
+        }
+    \makeatother
+
+    \let\OriginalVerbatim=\Verbatim
+    \makeatletter
+    \renewcommand{\Verbatim}[1][1]{%
+        %\parskip\z@skip
+        \sbox\Wrappedcontinuationbox {\Wrappedcontinuationsymbol}%
+        \sbox\Wrappedvisiblespacebox {\FV@SetupFont\Wrappedvisiblespace}%
+        \def\FancyVerbFormatLine ##1{\hsize\linewidth
+            \vtop{\raggedright\hyphenpenalty\z@\exhyphenpenalty\z@
+                \doublehyphendemerits\z@\finalhyphendemerits\z@
+                \strut ##1\strut}%
+        }%
+        % If the linebreak is at a space, the latter will be displayed as visible
+        % space at end of first line, and a continuation symbol starts next line.
+        % Stretch/shrink are however usually zero for typewriter font.
+        \def\FV@Space {%
+            \nobreak\hskip\z@ plus\fontdimen3\font minus\fontdimen4\font
+            \discretionary{\copy\Wrappedvisiblespacebox}{\Wrappedafterbreak}
+            {\kern\fontdimen2\font}%
+        }%
+        
+        % Allow breaks at special characters using \PYG... macros.
+        \Wrappedbreaksatspecials
+        % Breaks at punctuation characters . , ; ? ! and / need catcode=\active 	
+        \OriginalVerbatim[#1,codes*=\Wrappedbreaksatpunct]%
+    }
+    \makeatother
+
+    % Exact colors from NB
+    \definecolor{incolor}{HTML}{303F9F}
+    \definecolor{outcolor}{HTML}{D84315}
+    \definecolor{cellborder}{HTML}{CFCFCF}
+    \definecolor{cellbackground}{HTML}{F7F7F7}
+    
+    % prompt
+    \makeatletter
+    \newcommand{\boxspacing}{\kern\kvtcb@left@rule\kern\kvtcb@boxsep}
+    \makeatother
+    \newcommand{\prompt}[4]{
+        {\ttfamily\llap{{\color{#2}[#3]:\hspace{3pt}#4}}\vspace{-\baselineskip}}
+    }
+    
+
+    
+    % Prevent overflowing lines due to hard-to-break entities
+    \sloppy 
+    % Setup hyperref package
+    \hypersetup{
+      breaklinks=true,  % so long urls are correctly broken across lines
+      colorlinks=true,
+      urlcolor=urlcolor,
+      linkcolor=linkcolor,
+      citecolor=citecolor,
+      }
+    % Slightly bigger margins than the latex defaults
+    
+    \geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+    
+\begin{document}
+
+
+    
+    \maketitle
+ \hypertarget{introduction}{%.
+\section{introduction}}
+
+In neuronal and cardiac tissues,momentary impulses of the membrane
+of potential are called action potentials and are found to be caused
+by electric currents of an ionic nature, which flow through the
+channels of the cells of such membranes. The cellular currents taken into
+examined, are divided into two different types, according to their
+ionic composition:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.
+\item
+  The `fast' current (fast-response excitatory variable \(u\)) increases
+  as membrane conductance increases, by the ions
+  positive ions of Na and Ca. Ergo,such positive ions increase
+  the intensity of the current and therefore depotentiate the difference in the
+  membrane potential (which we assume to be negative).It is precisely such
+  current that causes action potentials,that is,neuronal impulses
+  or cardiac impulses.
+\item
+  The `slow' current ( Slow-response inhibotory variable \(v\))is
+  caused by the delayed response of the channels of \(K^{-\),\ which
+  allow these negative ions to leave the cell, causing
+  thus the recovery phase.Physically,such ion pumps act as
+  batteries to maintain ion concentration gradients between the
+  cells.
+\end{enumerate}
+
+From a purely mathematical-computational treatment,the equations, and the
+its parameters, that are suitable to describe a system of two
+variables for neuronal and cardiac membrane excitation, are the
+Fitzhugh--Nagumo equations:
+
+\[\frac{du}{dt}=u(u - a)(1 - u)-v + s(t)\] \((0.0)\)
+
+\[\frac{dv}{dt} =e(u-bv)\] \((0.1)\)
+
+With the following parameters chosen: \(a=0.15,b=2.5\), \(e=0.01\) (this
+parameter must be small to represent the slow response
+inhibitory), \(s(t)= 0.01-0.06\) (variable source term that
+within that range simulates a self-stimulated impulse).
+
+From the biological phenomenon concerning membrane excitations
+neurons and heart, parallels can be established with circuits
+electronics.
+
+In fact, the objective of this paper will be to describe in sections 0.2 and 0.3, the excitation of membranes and then derive the
+cardiac/neuronal action potentials, by means of two circuit models
+different structurally but equivalent in description: the circuit of
+Nagumo and the three-transistor circuit.
+
+To do this, the modus operandi will be to relate the mesh laws of
+such circuits to the mathematical equations of Fitzhugh-- Nagumo,
+emphasizing the importance of the choice of parameters, but especially
+of the initial conditions, for the stability of such a model. It is worth
+note that the practical approach for the realization of the
+model-circuits, although algorithmically similar, is very different and
+allows highlighting different nuances related to the same thematic
+biological.
+
+In the last part of the paper, we will describe how
+such cardiac/neuronal impulses propagate, with the analysis of a
+unitary segment of a transmission line between two nodes at different potential
+different (to continue the circuit analogy),by means of the well-known
+diffusion equation.
+
+\hypertarget{circuit-of-nagumo}{%.
+\section{Nagumo circuit}{label{circuit-of-nagumo}}
+
+\hypertarget{description-circuit}{%
+\subsection{circuit description}\label{circuit description}}
+
+\begin{center}
+    \adjustimage{max size={0.6\linewidth}{0.6\paperheight}}{circ1.jpeg}
+    \end{center}
+    { \hspace*{\fill} \\}
+
+\begin{enumerate}
+\defdeflabelenumi{{arabic{enumi}}}
+\tightlist
+\item
+  \(C\), the capacitor represents the capacity of the membrane
+  cellular membrane ``to charge and discharge'';
+\item
+  \(V\),the fast variable \(u\) ,at a membrane resistance
+  fixed,is the capacitor voltage analogous to the potential of the
+  membrane due to currents that charge the capacitor(with ions
+  Na+ and Ca+);
+\item
+  \(I\),proportional to the slow variable u, represents the currents that
+  discharge the capacitor,analogous to the membrane currents of
+  potassium to the outside;
+\item
+  \(R\),resistance of the cell channels;
+\item
+  \item \(L\),represents the solenoid that establishes the induction current
+  \item \(I\).Its value is chosen to make and small;
+\item
+  \(V_g\), represents a regulating circuit of the \(V\).The circuit
+  for the generation of \(V_g\) will not be treated at the
+  computational level,(circuit composed of two MLT04 multipliers and two ground multipliers) since it is not relevant to the physics of the problem,but is only part of the constructive physics of the circuit. What is important to know is that: 1.It produces the voltage \(V_g\), which is a cubic function of the
+voltage \(V_g\); 2.For reasons of construction and proper delivery of
+\(V_g\), we choose the Values of \(R\) and \(C\);\
+\item
+ \(Is\), is a scaling current so that the parameter \(s(t)\)
+is a self-stimulated source term,compatible with the stability and
+efficiency of the N-F equations, i.e.,such that \(s(t)\) is between
+$0.00 $ e $0.06$; 
+\item
+$R_l$ , the resitence of the inductor,chosen
+ad hoc such that \(b=2.5\).
+
+\end{enumerate}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+\hypertarget{description-algorithm-applied-to-model-of-f-n}{%
+\subsection{description-algorithm-applied-to-the-model-of-f-n.}
+F-N.}\label{description-algorithm-applied-to-the-model-of-f-n.}}
+
+The mesh equations describing the circuit are as follows:
+
+\[C\frac{dV}{dt_s}=\frac {V_g-V}{R} -I +
+I_s]
+\frac{dI}{dt_s}=\frac {V-IR_l}{L} \]
+\begin{enumerate}
+\defdef___labelenumi{{arabic{enumi}}
+\tightlist
+\item
+  We trace these equations, with appropriate parameter changes and
+  substitutions, to the equations of F-N \((0.0) and (0.1)\);
+\item
+  The values of the circuit components are chosen such that the values of the parameters of those
+  respected the values of the parameters of these equations (these values are
+  made explicit in the program);
+\item
+  After simplifying the structure of such equations, being a
+  system of coupled differential equations of the first order, the
+  implemented the Runge-Kutta-Fehlberg algorithm for equations
+  coupled up to sixth order;
+\item
+  After this implementation, plots are made of \(u\) Vs \(v\)
+  i.e., of the phase space having on the x-axis the
+  fast variable \(u\), and on the ordinates the slow variable \(v\);
+\item
+  We also plot \(v\) VS \(t\) and \(u\) Vs \(t\) , to get
+  a visual image of the pulses related to the excitation of the
+  membrane.
+\end{enumerate}
+
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{F_N 2 .jpg}\hfil
+\includegraphics[width=.49\textwidth]{F_N 1 .jpg}
+
+\caption{caption}{label}
+\end{figure}
+    \hypertarget{stabilituxe0-model-and-initial-conditions}{%
+\subsection{model stability and conditions
+initial}\label{stabilituxe0-of-the-model-and-initial-conditions}}
+
+We get into the heart of the analysis about the stability of the F-N equations,
+related to the Nagumo circuit. Before doing so, it is necessary to recall
+brief theoretical definitions concerning the concept of equilibrium and
+stability of a system:
+
+\begin{itemize}
+\tightlist
+\item
+  The equilibrium point of the system is defined as the point of
+  intersection of the trajectories (called nullclines) 
+  \[ \frac{du}{dt} = 0 ; \frac{dv}{dt} = 0 \] in the phase space.
+\item
+  An equilibrium point is said to be stable (according to Lyapunov) if every
+  orbit of the system in phase space, which starts sufficiently
+  close to the equilibrium point, remains in the vicinity of the point of
+  equilibrium.
+\end{itemize}
+
+The system of equations we are analyzing is a nonlinear system,
+so we want to check whether it is stable as the conditions change
+initial conditions. Previously we solved the system by choosing a
+particular initial condition: $ t_0 = 0 $ ; $ u_0 =0.2 $;
+$v_0 =0.08$, the reason for this choice is due to the fact that these
+points are stability points of the system, information obtained
+from the graphical intersection of the nullclines predicted by the F-N model:
+
+\[ u \cdot (u - a) \cdot (1 - u) - v + s = 0\]
+\[ e \cdot (u - b \cdot v) = 0\]
+
+Computationally, through the intersection of these trajectors,
+we obtained the coordinates of the stability point.
+
+
+   
+
+    \begin{center}
+    \adjustimage{max size={0.6\linewidth}{0.6\paperheight}}{6.0.jpeg}
+    \end{center}
+    { \hspace*{\fill} \\}
+      
+    
+If we try to make a variation of the initial conditions, in
+a neighborhood of the equilibrium point, one obtains evidence that the
+F-N. equations turn out to be very sensitive and therefore not stable
+with respect to a minimal variation of the initial conditions. This is
+evident in that the orbit in the phase space of $Figure 2$,
+deviates from the course of the equilibrium initial condition described above ,in
+reference to $Figure 1$; specifically, the trajectory is no longer
+closed and moves away from the equilibrium point.
+
+\begin{figure}
+\centering
+\includegraphics[width=.45\textwidth]{F_N 2 .jpg}\hfil
+\includegraphics[width=.45\textwidth]{8.1.jpeg}
+
+\caption{caption}{label}
+\end{figure} 
+\quad \quad \quad $Figure 1$ \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad \quad $Figure 2$  
+  
+    \hypertarget{circuit-a-three-transistor}{%
+\section{three-transistor circuit}\label{circuit-a-three-transistor}}
+
+\hypertarget{description{circuit-and-transistor-equations}}{%
+\subsection{description-circuit-and-the-equations-of-the-mesh}
+mesh}\label{description-circuit-and-the-equations-of-the-mesh}}
+
+An equivalent model to the Fitzhugh-Nagumo circuit is the three
+transistors shown in the figure:
+
+
+\begin{center}
+    \adjustimage{max size={0.4\linewidth}{0.4\paperheight}}{circuit2.jpeg}
+    \end{center}
+    { \hspace*{\fill} \\}
+
+
+The circuit can be made simpler by replacing the first two
+transistors a resistor \(R_{fast}(V)\), which is a function of the voltage
+\(V\) applied to the capacitor \(C\).\ This voltage represents the
+excitatory variable of the senotrial node. The voltage \(V_b\) of the
+base of the transistor represents the inhibitory variable.
+
+
+\begin{center}
+    \adjustimage{max size={0.4\linewidth}{0.4\paperheight}}{circuit3.jpeg}
+    \end{center}
+    { \hspace*{\fill} \\}
+
+Applying Kirchoff's laws to the two meshes yields the following
+equations:
+
+\[\left \{\begin{array}{rl}
+C\frac{d}{dt}{V} = \frac{5 - V}{R_{fast}(V)} + \frac{5 - V}{R_s} - \frac{V}{100 k{Omega} - \frac{V - V_b}{R_{sl}} - I_C(V,V_b)\C_{sl}{frac{d}{dt}{V_b} = \frac{V - V_b}{R_{sl}} - I_B(V,V_b)\.
+\end{array}{right}.
+
+a long capacitor charge time \(C_{sl} characterizes the
+slow response of the self-exciting model; the current
+\(\frac{(5 - V)}{R_s}\) plays a similar role to the source term
+\(s(t)\) that appears in the F-N model, that is, it represents the
+ionic current of sodium and calcium entering the cell membranes that
+excite the system. The choice of \(R_s\) fixes the period between two
+excitatory pulsations.
+
+\(I_B\) and \(I_C\) are the base and collector currents of the transistor,
+their expressions are given by the Ebers-Moll model:
+
+\[I_C(u,v) = -\frac{I_0}{\beta_r}[e^{200(\frac{V}{5} - \frac{V_b}{5})} - 1] + I_0[e^{200(\frac{V}{5} - e^{200(\frac{V}{5}-\frac{V_b}{5})})}] \]
+\[I_B(u,v) = \frac{I_0}{\beta_f}[e^{200(\frac{V}{5})} - 1] + \frac{I_0}{\beta_r}[e^{200(\frac{V}{5}-\frac{V_b}{5})} - 1] \]
+
+The equations of the two meshes can be expressed in the form of the
+F-N. equations by normalizing the variables with respect to the voltage of
+polarization of the transistors, i.e., 5\(V\).
+
+\[\left \{ \begin{array}{rl}
+C\frac{d}{dt}{u} = (1 - u)g_{fast}(u) + (1 - u)\frac{R_f}{R_s} - u\frac{R_f}{100 k\Omega} - (u - v)\frac{R_f}{R_{sl}} - \frac{R_f}{5}I_C(u,v)\C_{sl}\frac{d}{dt}{v} = \epsilon [u - v - \frac{R_f}{R_{sl}}I_B(u,v)]\\\\
+\end{array}{right.\]
+
+where \(g_{fast}(u)\) is the ratio \(\frac{R_{fast}(u)}{R_{f}) ;
+\(\epsilon\) is the parameter that governs the slow response of the variable
+u, and is given by the ratio of the charge times of the two capacitors
+\(\frac{R_fC}{R_{sl} C_{sl}}\).
+
+\hypertarget{choice-of-parameters-for-the-model-to-three-transistors}{%
+\subsection{choice-of-parameters-for-the-three-transistor-model}
+transistor}\label{choice-of-parameters-for-the-model-to-three-transistors}}
+
+In order for our system of differential equations to describe a
+fast response solution and a slow response solution, it is necessary to set the
+values of the capacitances and resistances such that the time of
+charge of the capacitor \(C\) is faster than the discharge time of the
+capacitor \(C_{sl}). In particular, \(\epsilon\) which is the ratio
+between these two quantities, analagoment to the case of F-N., is set at
+a value of 0.01. Thus, we choose the following values for the
+capacitances and resistances: \(C = 0.33 \mu f\), \(C_{sl} = 1 \mu f\),
+\(R_f = 1k\Omega\), \(R_{sl} = 33 k\Omega\).
+
+To have an excitation period that is long enough and that is
+of the order of magnitude of the excitation period of the senotrial node,
+the value of \(R_s\) must be set between {[}10 k\(\Omega\) ; 1
+M\(\Omega\){]}, so \(R_s\) is set at 330 k\(\Omega\).
+
+The characteristic parameters of the base and emitter currents of the
+transistor, obviously depend on the type of transistor used. For
+the study of this circuit a 2N3904 was used, to which are
+associated with the following parameters:  
+ \[ I_0 = 6.7 \cdot 10^{-15} A;\]
+ \[\beta_r = 0.737\] 
+ \[\beta_f = 416 \]
+
+It remains only to find an expression of the function \(g_{fast}(u)\);
+When V increases from zero and passes through a certain threshold value,the
+turn on the two transistors, allowing current to flow
+through the series combination of Rf and the pnp transistor. This
+current acts as a positive feedback trigger that rapidly charges the
+capacitor. Therefore \(R_{fast}(V)\) must have a steep transition
+until it reaches the value Rf. Based on these considerations, the
+ratio \(\frac{R_{fast}}{Rf} = g_{fast}\) can be expressed with
+this function:
+
+\[ g_{fast}(u) = \frac{1}{[1 + e^{w_1(V_{t1} -5u)}] \cdot [1 + (\frac{V_{t2}}{5u})^{w_2}]} \]
+
+From the experimental data, a best fit can be obtained and the
+parameters present within \(g_{fast}(u)\), this procedure was
+been carried out in the article by Jarrett L. Lancaster and Edward H.
+Hellenb, obtaining the following values:
+\[w_1 = 30; w_2 = 3.5; V_{t1} = 0.48 ; V_{t2} = 1.25 \]
+The trend of \(g_{fast}(u)\) in a scale-semilogarithmic scale follows:
+
+   
+
+    \begin{center}
+    \adjustimage{max size={0.6\linewidth}{0.6\paperheight}}{TT1.jpg}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    From the graph, we note that \(g_{fast}(u)\) grows rapidly until it
+reach the asymptotic value 1.
+
+    \hypertarget{description-algorithm-applied-to-the-model-to-three-transistors.}
+\subsection{description-algorithm-applied-to-three-transistor-model.}
+transistor.}\label{description-algorithm-applied-to-the-model-a-three-transistor.}}
+
+The modus operandi of this algorithm is the same as in the first section:
+after rewriting the mesh equations in the form of those
+of F-N, an algorithm of
+Runge-Kutta-Fehlberg for coupled equations up to sixth order. After
+such an implementation, plots of \(u\) vs \(v\), \(v\) vs.
+\(t\) and \(u\) vs \(t\).
+
+   \begin{figures}
+\centering
+\includegraphics[width=.49\textwidth]{TT2 .jpg}\hfil
+\includegraphics[width=.49\textwidth]{TT3 .jpg}
+
+\caption{caption}{label}
+\end{figure}
+  
+
+
+    
+    \hypertarget{stabilituxe0-model-and-initial-conditions}{%
+\subsection{model stability and conditions
+initial}\label{stabilituxe0-of-the-model-and-initial-conditions}}
+
+Similarly to what we did with the circuit model of F-N.
+we want to verify the Ljapunov-like stability of the three
+tranistor. The equations of the trajectories associated with $ \frac{du}{dt} =
+0 $ and $ \frac{dv}{dt} =0 $ turn out to be:
+
+\[\left \{ \begin{array}{rl}
+(1 - u)g_{fast}(u) + (1 - u)\frac{R_f}{R_s} - u\frac{R_f}{100 k{Omega} - (u - v)\frac{R_f}{R_{sl}} - \frac{R_f}{5}I_C(u,v) = 0\u - v - \frac{R_f}{R_{sl}}I_B(u,v) = 0\.
+\end{array}{right}.
+
+
+The solution of the system can be derived by applying the method of
+bisection to the two trajectories. Having chosen the initial point vi and final point vf
+of the domain on which to search for zero and \(\epsilon1\)\(\epsilon2\)
+arbitrarily small quantities,the algorithm proceeds as follows: for a
+given value of u and chosen the interval over which to search for zero
+{[}vi,vf{]}:
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.
+\tightlist
+\item
+   We calculate $vn = \frac{v_i + v_f} {2}$;
+\item
+ One calculates $f(u,vn)$
+\item
+If $(f(u,vn)$ \textless{} e_1$ \quad and \quad $|v_f - v_i\textbar{} \textless{} e_2$ \quad the cycle stops: \(vn\) is
+the approximate one-zero value of the function. If vn does not meet
+that condition then:
+\item
+the algorithm calculates \ f(u,vn)\.
+\cdot \ f(u,vi)\).
+\item
+ If \ f(u,vn)\ \ \cdot \ \ f(u,vi)\
+\textgreater{} 0, \(vn\) is substituted for \(vi\) and returns to Step 1,
+otherwise substitutes \(vn\) for \(vf\) and returns to Step 1.
+
+\end{enumerate}
+
+the algorithm was repeated a number of i times as the
+variable u.
+
+   
+    \begin{center}
+    \adjustimage{max size={0.6\linewidth}{0.6\paperheight}}{ciao.png}
+    \end{center}
+    { \hspace*{\fill} \\}    
+    The point obtained from the intersection has coordinates (0.16,0.17)
+corresponding to the initial condition that we assigned in the
+search for the solutions of the model. If we repeat the RKF algorithm
+by varying the initial condition we have that:
+
+    
+
+   
+
+    \begin{center}
+    \adjustimage{max size={0.6\linewidth}{0.6\paperheight}}{paolo.png}
+    \end{center}
+    { \hspace*{\fill} \\}
+    
+    The equilibrium point of the three-transistor model turns out to be stable,
+in fact chosen an initial condition other than stability,
+we have that the new trajectory given, retraces the same points as the
+trajectory given by the equilibrium condition. Regardless of the
+initial condition the trajectories of the system tend to the same
+curve.
+
+    \hypertarget{diffusion-dellimpulse-cardiac}{%
+\section{Diffusion of cardiac impulse }\label{diffusion-dellimpulse-cardiac}}
+
+\hypertarget{desciption-biological-process}}{%
+\subsection{biological-description-of-the
+process}\label{biological-description-of-the-process}}
+
+The self-excitatory systems we have previously described are
+analogous to the sinoatrial node, the heart's natural pacemaker, located
+in the upper part of the right atrium. The source terms \(s(t)\) and
+\((1-u)Rf/Rs\) in the equations of the two models correspond to the
+calcium currents flowing in the sinoatrial node cells.
+These currents are responsible for the increase in the
+membrane, generating the pacemaker pulse. The pulse signal
+heartbeat generated by the sinoatrial node propagates through the cells
+muscles of the atria, causing them to contract and send blood
+into the ventricles. At the same time, the signal travels through the
+cell membranes of the cardiac conduction system until it reaches
+to the atrioventricular node, located between the right atrium and the ventricle.
+
+\hypertarget{description-of-process-as-transmission-network}{%
+\subsection{description-of-process-as-transmission-network}{%. 
+}\label{Description-of-process-as-transmission-network}}
+
+
+The signals of the
+heartbeat and nerve signals propagate as action potentials
+of action (impulses) in an excitable medium. This medium is modeled
+by coupling the cells of the excitable circuit with a resistor
+Rd,simulating the structure of a transmission network as shown
+in the following figure:
+
+
+  \begin{center}
+    \adjustimage{max size={0.6\linewidth}{0.6\paperheight}}{network.jpeg}
+    \end{center}
+    { \hspace*{\fill} \\}
+                                                
+
+
+Signal scattering is described by the equation of the
+Diffusion in one dimension:
+
+\[\frac{dV}{dt}=D\frac{d^2V}{dx^2}\]
+
+\hypertarget{algorithm-for-solution-of-the-diffusion-equation-1d}{%
+\subsection{ Algorithm for solving the 'equation of the
+diffusion
+1D}\label{algorithm-for-solving-the-diffusion-equation-1d}}
+
+Before describing, the algorithm, it was decided, for simplicity ,to
+choose a unit transmission interval (\(L= 1cm\)) and to plot
+in that interval 10 nodes, each with its own potential \(V[i]\):
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.
+\tightlist
+\item
+  Since node number 1(indexed with Phyton with 0),does not
+  communicate,in the following algorithm,with node \(V[-1]\),and likewise, the
+  node number 10,\(V[n-1]\),with the next node \(V[n]\), we have
+  chosen two initial conditions with values that are plausible and compatible with
+  the results obtained in section 2 of the paper:
+\[V[-1]=V1s=3.2 V\] \[V[n]=V2s=0.5 V\] \item It was chosen \(V_0\) consistent with a value of \(u_0\) of stability, derived in Section 2, knowing that \(V=5u\); \item A characteristic time step of cardiac diffusion was used,of \(\Delta t=2.5 \mu s\) and as a coefficient of Diffusivity \(D= 10 ^ {-5} cm^2/\mu s\); \item As the origin of the x-axis, we chose the center of the unitary network \(L\) and defined intervals \(dx/2\) to make that axis an equispaced string. The goal is to vectorize the component space. \item was also vectorized \(V\), understood as a vector that repeats always \(V_0\) if not subject to variation. \item The variation \(dV \cdot dt\) is defined as the variation of the potential for dt e,at which point a cycle \(for\) is initiated on the time intervals defined by the step time of \(2\). \item Within that \(for\) loop, another \(for\) loop is defined.
+  grafted,sliding along spatial nodes,where a discrete
+  discrete second derivative,in space,of the potential \(V\),as a
+  variation of the potential with respect to the immediately preceding and
+  next:
+  \[ D\frac{V_{i+1} - V_{i}{dx^2} - D\frac{V_{i} - V_{i-1}}{dx^2}
+\item
+ This contribution to the value \(V_0\) is added and the process is iterated throughout the arbitrarily defined time interval.
+
+
+\end{enumerate}   
+
+\begin{figure}
+\centering
+\includegraphics[width=.49\textwidth]{start.jpeg}\hfil
+\includegraphics[width=.49\textwidth]{start2.jpeg}}
+
+\centering
+\includegraphics[width=.49\textwidth]{start3.jpeg}\hfil
+\includegraphics[width=.49\textwidth]{start4.jpeg}
+
+
+
+\caption{caption}{label}
+\end{figure}     
+    This trend, without going into detail about the technique used, nor any
+further refinements, is also confirmed by the experimental results of the
+cardiac diffusion using the technique of magnetic resonance imaging (MRI=
+Magnetic Resonance Imaging).FIG.3.3 of the publication:
+https://link.springer.com/chapter/10.1007/978-3-319-53001-7\_3.
+
+    Another paper also confirms the following trend for diffusion
+cardiac:
+https://www.semanticscholar.org/paper/Cardiac-diffusion-tensor-imaging-based-on-sensing-Huang-Wang/c2d1210a2329dcdc4fe8eb61cf6cef2fa3265f4f.
+% Add a bibliography block to the postdoc.
+\end{document}
+
