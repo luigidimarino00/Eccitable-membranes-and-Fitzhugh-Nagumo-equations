@@ -1,0 +1,505 @@
+!/usr/bin/env python
+# coding: utf-8
+
+#realized by Luigi Di Marino and Daniele Antonucci
+
+import random as rnd
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+#nagumo circuit. 
+
+
+#define the numerical values of the circuit components.
+C1 = 0.0000001 #Farad
+R1 = 100 #Ohm
+R_l1 = 250 #Ohm
+L1 = 0.114 #Henry
+Is1 = 0.0015 #Ampére
+a = 0.15 #dimensional and is assigned by the cubic function produced by V_g(u).
+e = (R1*C1)/(L1/R1) #dimensional, capacitor charge time << inductor discharge time 
+b = R_l1/R1 #adimensional
+s = (Is1*R1/2.5) #volts
+
+#defining functions 
+
+def f_1(u,v): #let's f_1 the function decrypting the change in the u-fast variable.
+     return u * (u-a) * (1-u) -v + s 
+                   
+def g_1(u,v): #let's g_1 the one for the v-slow variable.
+     return e * (u - b * v) 
+    
+# initial conditions for stability
+u0_1 = 0.2 
+v0_1 = 0.08    
+#Algorithm RKF  
+
+h= 10**(-3) # arbitrarily chosen
+tmax_1 = 250 #dimensional #chosen arbitrarily 
+tmin_1 = 0.
+t0_1= 0
+interval_1 = tmax_1 - tmin_1
+n_step_1 = int(interval_1/h) + 1 #count ends at n-1, so you add +1
+asseu_1= np.empty(n_step_1 +1)
+assev_1= np.empty(n_step_1 +1)
+asset_1= np.empty(n_step_1 +1)
+
+j=0
+while j <= (n_step_1):
+    
+    asset_1[j] = t0_1
+    asseu_1[j] = u0_1
+    assev_1[j] = v0_1
+    
+    k1u = h*f_1(u0_1,v0_1)
+    k1v = h*g_1(u0_1,v0_1)
+    
+    k2u= h*f_1(u0_1 + k1u/4., v0_1 + k1v/4.)
+    k2v = h*g_1(u0_1 + k1u/4., v0_1 + k1v/4.)
+    
+    k3u = h*f_1(u0_1 + 3./32. * k1u + 9./32. * k2u, v0_1 + 3./32. * k1v + 9./32. * k2v)
+    k3v = h*g_1(u0_1 + 3./32. * k1u + 9./32. * k2u, v0_1 + 3./32. * k1v + 9./32. * k2v)
+    
+    k4u = h*f_1(u0_1 + 1932./2197. * k1u - 7200./2197. * k2u + 7296./2197. * k3u, v0_1 + 1932./2197. * k1v - 7200./2197. * k2v + 7296./2197. * k3v)
+    k4v = h*g_1(u0_1 + 1932./2197. * k1u - 7200./2197. * k2u + 7296./2197. * k3u, v0_1 + 1932./2197. * k1v - 7200./2197. * k2v + 7296./2197. * k3v)
+    
+    k5u = h*f_1(u0_1 + 439./216. * k1u - 8.*k2u + 3680./513. * k3u - 845./4104. * k4u, v0_1 + 439./216. * k1v - 8.*k2v + 3680./513. * k3v - 845./4104. * k4v)
+    k5v = h*g_1(u0_1 + 439./216. * k1u - 8.*k2u + 3680./513. * k3u - 845./4104. * k4u, v0_1 + 439./216. * k1v - 8.*k2v + 3680./513. * k3v - 845./4104. * k4v)
+    
+    k6u = h*f_1(u0_1 -8./27. *k1u + 2*k2u - 3544./2565.*k3u + 1859./4104. *k4u - 11./40.*k5u, v0_1 -8./27. *k1v + 2*k2v - 3544./2565.*k3v + 1859./4104. * k4v - 11./40.*k5v)
+    k6v = h*g_1(u0_1 -8./27. *k1u + 2*k2u - 3544./2565.*k3u + 1859./4104. *k4u - 11./40.*k5u, v0_1 -8./27. *k1v + 2*k2v - 3544./2565.*k3v + 1859./4104. *k4v - 11./40.*k5v)
+    
+    t0_1+=h
+    u0_1 = u0_1 + 16./135. * k1u + 6656./12825. * k3u + 28561./56430. * k4u - 9./50. * k5u + 2./55.*k6u #err glob O(h^5)
+    v0_1 = v0_1 + 16./135. * k1v + 6656./12825. * k3v + 28561./56430. * k4v - 9./50. * k5v + 2./55.*k6v
+    
+    j+=1
+# plot functions  
+plt.figure(figsize=(10,8))
+plt.grid()
+plt.plot(asset_1, asseu_1,color='red',label='fast response u')
+plt.plot(asset_1, assev_1,color='blue',label ='slow response v')
+plt.ylabel('DIMENSIONLESS POTENTIAL')
+plt.xlabel('DIMENSIONLESS TIME')
+plt.legend()
+plt.title(' t vs v and u')
+plt.show()
+
+plt.figure(figsize=(10,8))
+plt.grid()
+plt.plot(asseu_1, assev_1,color='black')
+x,y = 0.2,0.08
+plt.plot(x,y,'bo',label='initial condition',color='green')
+plt.ylabel('$v$')
+plt.xlabel('$u$')
+plt.title('phase space')
+plt.legend()
+plt.show()
+
+
+
+#functions describing nullclines 
+def v1(u):
+    return u * (u - a) * (1 - u) + s 
+def v2(u):
+    return (1./2.5) * u 
+
+domain_u = [] #discretization of the domain of u
+domain_v1 = []
+domain_v2 = []
+u_min = 0.
+u_max = 0.4 # this step was chosen to have the intersection of the nullclines displayed in the center of the graph.
+domain = u_max - u_min
+h = 0.001 # the choice of h determines the number of steps,with h=0.001 you have 400 steps.
+steps = int(domain/h) + 1
+u = u_min
+for i in range(steps):
+    domain_u.append(u)
+    u+= h
+for i in range(len(domain_u)):
+    a = v1(domain_u[i])
+    b = v2(domain_u[i])
+    domain_v1.append(a)
+    domain_v2.append(b)
+
+#the stability point is plotted
+x = 0.2
+y = 0.08
+
+plt.figure(figsize=(10,8))
+plt.grid()
+plt.title('nullclines in phase space')
+plt.plot(x,y,'bo',label='point stabilty',color='green')
+plt.plot(domain_u,domain_v2,'-',color='red',label='du/dt = 0')
+plt.plot(domain_u,domain_v1,'-',color='blue',label='dv/dt = 0')
+plt.legend()
+plt.ylabel('$v$')
+plt.xlabel('$u$')
+plt.show()
+
+
+
+
+# RGK of the same Nagumo circuit, with new initial conditions. 
+u0_2 = 0.9 #new initial conditions of non-stability
+v0_2 = 0.3
+t0_2= 0.
+j=0
+asseu_2= np.empty(n_step_1 +1)
+assev_2= np.empty(n_step_1 +1)
+asset_2= np.empty(n_step_1 +1)
+
+
+while j <= (n_step_1):
+    
+    asset_2[j] = t0_2
+    asseu_2[j] = u0_2
+    assev_2[j] = v0_2
+    
+    k1u = h*f_1(u0_2,v0_2)
+    k1v = h*g_1(u0_2,v0_2)
+    
+    k2u= h*f_1(u0_2 + k1u/4., v0_2 + k1v/4.)
+    k2v = h*g_1(u0_2 + k1u/4., v0_2 + k1v/4.)
+    
+    k3u = h*f_1(u0_2 + 3./32. * k1u + 9./32. * k2u, v0_2 + 3./32. * k1v + 9./32. * k2v)
+    k3v = h*g_1(u0_2 + 3./32. * k1u + 9./32. * k2u, v0_2 + 3./32. * k1v + 9./32. * k2v)
+    
+    k4u = h*f_1(u0_2 + 1932./2197. * k1u - 7200./2197. * k2u + 7296./2197. * k3u, v0_2 + 1932./2197. * k1v - 7200./2197. * k2v + 7296./2197. * k3v)
+    k4v = h*g_1(u0_2 + 1932./2197. * k1u - 7200./2197. * k2u + 7296./2197. * k3u, v0_2 + 1932./2197. * k1v - 7200./2197. * k2v + 7296./2197. * k3v)
+    
+    k5u = h*f_1(u0_2 + 439./216. * k1u - 8.*k2u + 3680./513. * k3u - 845./4104. * k4u, v0_2 + 439./216. * k1v - 8.*k2v + 3680./513. * k3v - 845./4104. * k4v)
+    k5v = h*g_1(u0_2 + 439./216. * k1u - 8.*k2u + 3680./513. * k3u - 845./4104. * k4u, v0_2 + 439./216. * k1v - 8.*k2v + 3680./513. * k3v - 845./4104. * k4v)
+    
+    k6u = h*f_1(u0_2 -8./27. *k1u + 2*k2u - 3544./2565.*k3u + 1859./4104. *k4u - 11./40.*k5u, v0_2 -8./27. *k1v + 2*k2v - 3544./2565.*k3v + 1859./4104. * k4v - 11./40.*k5v)
+    k6v = h*g_1(u0_2 -8./27. *k1u + 2*k2u - 3544./2565.*k3u + 1859./4104. *k4u - 11./40.*k5u, v0_2 -8./27. *k1v + 2*k2v - 3544./2565.*k3v + 1859./4104. *k4v - 11./40.*k5v)
+    
+    t0_2+=h
+    u0_2 = u0_2 + 16./135. * k1u + 6656./12825. * k3u + 28561./56430. * k4u - 9./50. * k5u + 2./55.*k6u #err glob O(h^5)
+    v0_2 = v0_2 + 16./135. * k1v + 6656./12825. * k3v + 28561./56430. * k4v - 9./50. * k5v + 2./55.*k6v
+    
+    j+=1
+    
+plt.figure(figsize=(10,8))
+plt.title(' phase space')
+plt.ylabel('$v$')
+plt.xlabel('$u$')
+x,y = 0.2,0.08
+plt.plot(x,y,'bo',label='equilibrium point',color='green')
+plt.plot(u0_2,v0_2,'bo',color='blue',label='new starting point')
+plt.plot(asseu_2,assev_2, color='black')
+plt.legend()
+plt.show()
+
+
+
+
+
+
+
+# transistor circuit
+
+
+
+# best-fit parameters.
+w1,w2,V_t1,V_t2 = [30,3.5,0.48,1.25]
+# definition of g_fast 
+def g_fast(x):
+    if x == 0:
+        return 0 #python would give error but the function cancels to zero since the exponential goes to zero faster...
+    else:
+        return (1./((1. + math.exp(w1 * (V_t1 - 5 * x))) * (1 + (V_t2/(5 * x) ** w2 ))))
+#discretization of the variable u;
+domain_u = []
+g = []
+u_min = 0.
+u_max = 1.
+domain = u_max - u_min
+h = 10 ** (-3)
+steps = int(domain/h) + 1
+u = u_min
+for i in range(steps):
+    domain_u.append(u)
+    u+= h
+for i in range(len(domain_u)):
+    a = g_fast(domain_u[i])
+    g.append(a)
+    
+plt.figure(figsize=(10,8))
+plt.title('g_fast(u) in semilog scale')
+plt.ylabel('$g_{fast}(u)$')
+plt.xlabel('$u$')
+plt.grid()
+plt.plot(domain_u,g,color = 'black', label = 'conductance')
+plt.yscale('log')
+plt.show()
+
+
+
+
+
+# set of parameters
+Rf,Rs,Rt,Rsl = 1., 330., 100., 33. #Kohm
+I0 = 6.7 * 10 ** -15 #Ampére
+br = 0.737 # transistor collector current gain.
+bf = 416 # transistor base current gain
+A = 200 #KOhm resistance in parallelom to the capacitance C
+e = 0.01 # ratio of charge times of C and C_sl
+
+# collector and base currents of the transistor.
+def Ic(u,v):
+    Ic = -(I0/br) * (math.exp(A * (v-u) - 1.)) + I0 * (math.exp(A * v) - math.exp(A * (v - u)))
+    return Ic
+def Ib(u,v):
+    Ib = -(I0/bf) * (math.exp(A * v - 1.)) + (I0/br) * (math.exp(A * (v-u) - 1)) 
+    return Ib  
+
+#fast response and slow response:
+def f_3(u,v):
+    f = (1-u) * g_fast(u) + (1 - u) * (Rf/Rs) - u * (Rf/Rt) - (u - v) * (Rf/Rsl) - (Rf/5.) * Ic(u,v)
+    return f
+def g_3(u,v):
+    g = e * (u - v - Rsl/5. * Ib(u,v))
+    return g
+
+
+
+
+
+#Algorithm RKF
+t0_3 = 0. # initial conditions: correspond to the stability point of the problem.
+u0_3 = 0.155
+v0_3 = 0.17
+k = 10 ** -3
+tmax = 200.
+tmin = 0.
+interval = tmax - tmin
+
+n_step = int(interval/k) + 1
+
+#initialize arrays of data
+asset_3 = np.empty(n_step +1)
+assex_3 = np.empty(n_step +1)
+assey_3 = np.empty(n_step +1)
+
+j=0
+while j <= (n_step):
+    
+    asset_3[j] = t0_3
+    assex_3[j] = u0_3
+    assey_3[j] = v0_3
+    
+    k1x = h*f_3(u0_3, v0_3)
+    k1y = h*g_3(u0_3, v0_3)
+    
+    k2x = h*f_3(u0_3 + k1x/4., v0_3 + k1y/4.)
+    k2y = h*g_3(u0_3 + k1x/4., v0_3 + k1y/4.)
+    
+    k3x = h*f_3(u0_3 + 3./32. * k1x + 9./32. * k2x, v0_3 + 3./32. * k1y + 9./32. * k2y)
+    k3y = h*g_3(u0_3 + 3./32. * k1x + 9./32. * k2x, v0_3 + 3./32. * k1y + 9./32. * k2y)
+    
+    k4x = h*f_3(u0_3 + 1932./2197. * k1x - 7200./2197. * k2x + 7296./2197. * k3x, v0_3 + 1932./2197. * k1y - 7200./2197. * k2y + 7296./2197. * k3y)
+    k4y = h*g_3(u0_3 + 1932./2197. * k1x - 7200./2197. * k2x + 7296./2197. * k3x, v0_3 + 1932./2197. * k1y - 7200./2197. * k2y + 7296./2197. * k3y)
+    
+    k5x = h*f_3(u0_3 + 439./216. * k1x - 8.*k2x + 3680./513. * k3x - 845./4104. * k4x, v0_3 + 439./216. * k1y - 8.*k2y + 3680./513. * k3y - 845./4104. * k4y)
+    k5y = h*g_3(u0_3 + 439./216. * k1x - 8.*k2x + 3680./513. * k3x - 845./4104. * k4x, v0_3 + 439./216. * k1y - 8.*k2y + 3680./513. * k3y - 845./4104. * k4y)
+    
+    k6x = h*f_3(u0_3 -8./27. *k1x + 2*k2x - 3544./2565.*k3x + 1859./4104. *k4x - 11./40.*k5x, v0_3 -8./27. *k1y + 2*k2y - 3544./2565.*k3y + 1859./4104. * k4y - 11./40.*k5y)
+    k6y = h*g_3(u0_3 -8./27. *k1x + 2*k2x - 3544./2565.*k3x + 1859./4104. *k4x - 11./40.*k5x, v0_3 -8./27. *k1y + 2*k2y - 3544./2565.*k3y + 1859./4104. *k4y - 11./40.*k5y)
+    
+    t0_3+=h
+    u0_3 = u0_3 + 16./135. * k1x + 6656./12825. * k3x + 28561./56430. * k4x - 9./50. * k5x + 2./55.*k6x #err glob O(h^5)
+    v0_3 = v0_3 + 16./135. * k1y + 6656./12825. * k3y + 28561./56430. * k4y - 9./50. * k5y + 2./55.*k6y
+    
+    j+=1
+plt.figure(figsize=(10,8))
+plt.title('time vs potential u,v')
+plt.plot(asset_3, assex_3, color = 'red', label = 'fast response $u$')
+plt.plot(asset_3, assey_3, color = 'blue', label = 'slow response $v$')
+plt.grid(True)
+plt.legend()
+plt.ylabel('DIMENSIONLESS POTENTIAL')
+plt.xlabel('DIMENSIONLESS TIME')
+plt.show()
+plt.figure(figsize=(10,8))
+plt.grid()
+plt.title('phase space')
+plt.plot(assex_3, assey_3, color='black')
+plt.ylabel('$v$')
+plt.xlabel('$u$')
+plt.show()
+
+
+
+
+
+# bisection method to Trajectory du/dt = 0.
+# choice of interval over which to search for zero:
+vi = 0.1 
+vf = 0.18
+# function that searches for zero for a given u:
+def Z(a,b,N,i): # i is put as the variable of the function, for each i I will find the minimum with respect to v.
+    global c # is used to globally define the variable c.
+    while abs(b-a)>10**(-N):
+        c=(a+b)/2
+        
+        if f_3(domain_u[i],c) < 10**(-N) :
+            return c
+        elif f_3(domain_u[i],a)*f_3(domain_u[i],c)<0:
+            b=c
+        else:
+            a=c
+v1 = []
+for i in range(len(domain_u)): # I cycled over all i in the list domain_u.
+    Z(vi,vf,10,i)
+    v1.append(c)
+print(len(v1)) # check that the loop worked for all i.
+
+
+
+# bisection method to Trajectory du/dt = 0.
+# choice of interval over which to search for zero:
+vi = 0.1  
+vf = 0.18
+def Z(a,b,N,i):
+    global c
+    while abs(b-a)>10**(-N):
+        c=(a+b)/2
+        
+        if g_3(domain_u[i],c) < 10**(-N):
+            return c
+        elif g_3(domain_u[i],a)*g_3(domain_u[i],c)<0:
+            b=c
+        else:
+            a=c
+v2 = []
+for i in range(len(domain_u)):
+    Z(vi,vf,10,i)
+    v2.append(c)
+print(len(v1)) 
+
+
+
+
+
+x,y = 0.155,0.17
+plt.figure(figsize=(10,8))
+plt.grid()
+plt.title('nullclines in phase space')
+plt.ylabel('$v$')
+plt.xlabel('$u$')
+plt.plot(x,y,'bo',color='green',label = 'stability point')
+plt.plot(domain_u,v2,color='red',label= 'du/dt = 0')
+plt.plot(domain_u,v1,color='blue',label= 'dv/dt = 0')
+plt.legend()
+plt.show()
+
+
+
+
+
+#Algorithm RKF
+t0_4 = 0. # initial conditions I chose them based on the graphs in the article.
+u0_4 = 0.15
+v0_4 = 0.16
+
+n_step = int(interval/k) + 1
+
+#initialize arrays of data
+asset = np.empty(n_step +1)
+assex = np.empty(n_step +1)
+assey = np.empty(n_step +1)
+
+j=0
+while j <= (n_step):
+    
+    asset[j] = t0_4
+    assex[j] = u0_4
+    assey[j] = v0_4
+    
+    k1x = h*f_3(u0_4, v0_4)
+    k1y = h*g_3(u0_4, v0_4)
+    
+    k2x = h*f_3(u0_4 + k1x/4., v0_4 + k1y/4.)
+    k2y = h*g_3(u0_4 + k1x/4., v0_4 + k1y/4.)
+    
+    k3x = h*f_3(u0_4 + 3./32. * k1x + 9./32. * k2x, v0_4 + 3./32. * k1y + 9./32. * k2y)
+    k3y = h*g_3(u0_4 + 3./32. * k1x + 9./32. * k2x, v0_4 + 3./32. * k1y + 9./32. * k2y)
+    
+    k4x = h*f_3(u0_4 + 1932./2197. * k1x - 7200./2197. * k2x + 7296./2197. * k3x, v0_4 + 1932./2197. * k1y - 7200./2197. * k2y + 7296./2197. * k3y)
+    k4y = h*g_3(u0_4 + 1932./2197. * k1x - 7200./2197. * k2x + 7296./2197. * k3x, v0_4 + 1932./2197. * k1y - 7200./2197. * k2y + 7296./2197. * k3y)
+    
+    k5x = h*f_3(u0_4 + 439./216. * k1x - 8.*k2x + 3680./513. * k3x - 845./4104. * k4x, v0_4 + 439./216. * k1y - 8.*k2y + 3680./513. * k3y - 845./4104. * k4y)
+    k5y = h*g_3(u0_4 + 439./216. * k1x - 8.*k2x + 3680./513. * k3x - 845./4104. * k4x, v0_4 + 439./216. * k1y - 8.*k2y + 3680./513. * k3y - 845./4104. * k4y)
+    
+    k6x = h*f_3(u0_4 -8./27. *k1x + 2*k2x - 3544./2565.*k3x + 1859./4104. *k4x - 11./40.*k5x, v0_4 -8./27. *k1y + 2*k2y - 3544./2565.*k3y + 1859./4104. * k4y - 11./40.*k5y)
+    k6y = h*g_3(u0_4 -8./27. *k1x + 2*k2x - 3544./2565.*k3x + 1859./4104. *k4x - 11./40.*k5x, v0_4 -8./27. *k1y + 2*k2y - 3544./2565.*k3y + 1859./4104. *k4y - 11./40.*k5y)
+    
+    t0_4+=h
+    u0_4 = u0_4 + 16./135. * k1x + 6656./12825. * k3x + 28561./56430. * k4x - 9./50. * k5x + 2./55.*k6x #err glob O(h^5)
+    v0_4 = v0_4 + 16./135. * k1y + 6656./12825. * k3y + 28561./56430. * k4y - 9./50. * k5y + 2./55.*k6y
+    
+    j+=1
+
+
+
+
+
+x1 = 0.16
+y1= 0.17
+x2= 0.15
+y2= 0.16
+plt.figure(figsize=(10,8))
+plt.grid()
+plt.title('phase space')
+plt.plot(x1,y1,'bo',color='green',label='stability point')
+plt.plot(x2,y2,'bo',color='blue',label='0.15,0.16')
+plt.plot(assex,assey,color='black')
+plt.ylabel('$v$')
+plt.xlabel('$u$')
+plt.legend()
+plt.show()
+
+
+
+
+# diffusion equation 
+
+
+
+L = 1.0 #length in cm  
+n = 10     
+V0 = 0.5 #initial condition  
+V1s =3.2 #condition at the edge     
+V2s =0.5 
+dx = L/n
+D = 0.00001 #Coefficient of Diffusivity in cm^2/microseconds 
+t_final =500 #microseconds    
+dt = 2.5 #microseconds 
+x = np.linspace(dx/2, L-dx/2, n) # we vectorize the spatial component
+V = np.ones(n)*V0 # we vectorize V , as a vector that always repeats V0 if not varied
+dVdt = np.empty(n) #variation of V per unit time, between the n nodes 
+t = np.arange(0, t_final, dt)
+for j in range(1,len(t)):  #first for loop for variation over time 
+    plt.clf()
+    for i in range(1, n-1): # nested for loop for variation in space
+        dVdt[i] = D*(-(V[i]-V[i-1])/dx**2+(V[i+1]-V[i])/dx**2) #second derivative of V with respect to discretized space
+    dVdt[0] = D*(-(V[0]-V1s)/dx**2+(V[1]-V[0])/dx**2) #derivative at edges, with appropriate boundary conditions
+    dVdt[n-1] = D*(-(V[n-1]-V[n-2])/dx**2+(V2s-V[n-1])/dx**2)
+    V = V + dVdt*dt
+    plt.plot(x,V,color = 'orange')
+    plt.title('signal spread')
+    plt.grid()
+    plt.axis([0, L, 0.3, 2])
+    plt.xlabel('Distance (cm)')
+    plt.ylabel('VOLTAGE(V)')
+    plt.show()
+
+
+
+
+
+
+
